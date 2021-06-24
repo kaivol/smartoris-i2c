@@ -25,8 +25,19 @@ std = [
     "futures/std",
 ]
 
+[dependencies.drone-core]
+version = "0.14.0"
+path = "../drone-core"
+
+[dependencies.drone-cortexm]
+version = "0.14.0"
+path = "../drone-cortexm"
+features = ["bit-band", "floating-point-unit", "memory-protection-unit"]
+
+[dependencies.drone-stm32-map]
+version = "0.14.0"
+path = "../drone-stm32-map"
+features = ["dma", "i2c"]
+
 [dependencies]
-drone-core = { version = "0.12.0", path = "../../drone-os/drone-core" }
-drone-cortexm = { version = "0.12.0", path = "../../drone-os/drone-cortexm" }
-drone-stm32-map = { version = "0.12.0", features = ["dma", "i2c"], path = "../../drone-os/drone-stm32-map" }
 futures = { version = "0.3.0", default-features = false }

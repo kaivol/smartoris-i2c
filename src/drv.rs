@@ -177,10 +177,10 @@ impl<
     /// will be leaked.
     pub fn master(
         &mut self,
-        buf: Box<[u8]>,
+        // buf: Box<[u8]>,
     ) -> I2CMaster<'_, I2C, I2CEv, I2CEr, DmaTx, DmaTxInt, DmaRx, DmaRxInt> {
         while self.i2c.i2c_cr1.stop().read_bit() {} // stop generation
-        I2CMaster::new(self, buf)
+        I2CMaster::new(self/*, buf*/)
     }
 
     pub(crate) unsafe fn write(&mut self, addr: u8, buf_tx: &[u8]) -> impl Future<Output = ()> {

@@ -1,5 +1,4 @@
 use crate::I2CDrv;
-use core::{mem::ManuallyDrop, slice::SliceIndex};
 use drone_cortexm::thr::prelude::*;
 use drone_stm32_map::periph::{dma::ch::DmaChMap, i2c::I2CMap};
 
@@ -8,6 +7,7 @@ use drone_stm32_map::periph::{dma::ch::DmaChMap, i2c::I2CMap};
 /// The session object takes ownership of the provided buffer, which is returned
 /// by [`I2CMaster::stop`] method. If the `stop` method is not called, the
 /// buffer will be leaked.
+#[must_use]
 pub struct I2CMaster<
     'a,
     I2C: I2CMap,
@@ -19,7 +19,7 @@ pub struct I2CMaster<
     DmaRxInt: IntToken,
 > {
     drv: &'a mut I2CDrv<I2C, I2CEv, I2CEr, DmaTx, DmaTxInt, DmaRx, DmaRxInt>,
-    buf: ManuallyDrop<Box<[u8]>>,
+    // buf: ManuallyDrop<Box<[u8]>>,
 }
 
 impl<
@@ -35,48 +35,47 @@ impl<
 {
     pub(crate) fn new(
         drv: &'a mut I2CDrv<I2C, I2CEv, I2CEr, DmaTx, DmaTxInt, DmaRx, DmaRxInt>,
-        buf: Box<[u8]>,
+        // buf: Box<[u8]>,
     ) -> Self {
-        Self { drv, buf: ManuallyDrop::new(buf) }
+        Self { drv/*, buf: ManuallyDrop::new(buf)*/ }
     }
 
     /// Sends a Start signal and writes data from a slice of the session buffer.
-    pub async fn write<I: SliceIndex<[u8], Output = [u8]>>(
+    pub async fn write(
         self,
         addr: u8,
-        index: I,
+        buffer: &[u8],
     ) -> I2CMaster<'a, I2C, I2CEv, I2CEr, DmaTx, DmaTxInt, DmaRx, DmaRxInt> {
-        unsafe { self.drv.write(addr, &self.buf[index]).await };
+        unsafe { self.drv.write(addr, buffer).await };
         self
     }
 
     /// Sends a Start signal and reads data into a slice of the session buffer.
-    pub async fn read<I: SliceIndex<[u8], Output = [u8]>>(
-        mut self,
+    pub async fn read(
+        self,
         addr: u8,
-        index: I,
+        buffer: &mut [u8],
     ) -> I2CMaster<'a, I2C, I2CEv, I2CEr, DmaTx, DmaTxInt, DmaRx, DmaRxInt> {
-        unsafe { self.drv.read(addr, &mut self.buf[index]).await };
+        unsafe { self.drv.read(addr, buffer).await };
         self
     }
 
     /// Returns a reference to the session buffer.
-    #[must_use]
-    pub fn buf(&self) -> &[u8] {
-        &self.buf
-    }
+    // #[must_use]
+    // pub fn buf(&self) -> &[u8] {
+    //     &self.buf
+    // }
 
     /// Returns a mutable reference to the session buffer.
-    #[must_use]
-    pub fn buf_mut(&mut self) -> &mut Box<[u8]> {
-        &mut self.buf
-    }
+    // #[must_use]
+    // pub fn buf_mut(&mut self) -> &mut Box<[u8]> {
+    //     &mut self.buf
+    // }
 
     /// Sends a Stop signal and returns the session buffer.
-    #[must_use]
-    pub fn stop(self) -> Box<[u8]> {
-        let Self { drv, buf } = self;
-        drv.stop();
-        ManuallyDrop::into_inner(buf)
+    pub fn stop(self) {
+        // let Self { drv, buf } = self;
+        self.drv.stop();
+        // ManuallyDrop::into_inner(buf)
     }
 }
