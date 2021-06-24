@@ -40,7 +40,8 @@ impl<
         Self { drv/*, buf: ManuallyDrop::new(buf)*/ }
     }
 
-    /// Sends a Start signal and writes data from a slice of the session buffer.
+    /// Sends the Start signal for the address `addr`, and writes the data from
+    /// the session buffer slice of the range `index` to the slave.
     pub async fn write(
         self,
         addr: u8,
@@ -50,9 +51,10 @@ impl<
         self
     }
 
-    /// Sends a Start signal and reads data into a slice of the session buffer.
+    /// Sends the Start signal for the address `addr`, and reads the data from
+    /// the slave into the session buffer slice of the range `index`.
     pub async fn read(
-        self,
+        mut self,
         addr: u8,
         buffer: &mut [u8],
     ) -> I2CMaster<'a, I2C, I2CEv, I2CEr, DmaTx, DmaTxInt, DmaRx, DmaRxInt> {
