@@ -54,7 +54,7 @@ impl<
     /// Sends the Start signal for the address `addr`, and reads the data from
     /// the slave into the session buffer slice of the range `index`.
     pub async fn read(
-        mut self,
+        self,
         addr: u8,
         buffer: &mut [u8],
     ) -> I2CMaster<'a, I2C, I2CEv, I2CEr, DmaTx, DmaTxInt, DmaRx, DmaRxInt> {
